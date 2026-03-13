@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Cartoon Neon Calculator - Galaxy</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    align-items:center;
+    overflow:auto; /* changed to allow scrolling */
+    font-family:Arial, sans-serif;
+    background:black;
+    padding:20px 0;
+}
+
+/* Galaxy Background Canvas */
+canvas{
+    position:fixed; /* fixed so background stays during scroll */
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:-1;
+}
+
+/* Calculator Box */
+.calculator{
+    backdrop-filter: blur(15px);
+    background: rgba(255,255,255,0.05);
+    padding:25px;
+    border-radius:30px;
+    box-shadow:0 0 40px rgba(0,255,255,0.4);
+    display:grid;
+    grid-template-columns: repeat(4,75px);
+    gap:18px;
+    margin-bottom:40px; /* space for photo squares */
+}
+
+/* Display */
+.display{
+    grid-column: span 4;
+    height:65px;
+    border:none;
+    border-radius:20px;
+    font-size:26px;
+    text-align:right;
+    padding:10px;
+    background:linear-gradient(145deg,#00ccff,#0066ff);
+    color:white;
+    box-shadow:
+        inset 0 4px 10px rgba(255,255,255,0.5),
+        0 0 15px #00ccff;
+}
+
+/* Cartoon Button Base */
+button{
+    height:70px;
+    border:none;
+    border-radius:22px;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:0.3s;
+    color:white;
+    box-shadow:
+        inset 0 4px 8px rgba(255,255,255,0.6),
+        inset 0 -6px 10px rgba(0,0,0,0.4),
+        0 8px 15px rgba(0,0,0,0.4);
+}
+
+/* Button Colors */
+button:nth-child(n+2){
+    background: linear-gradient(145deg,#ff00cc,#6600ff);
+}
+
+/* Fun colors */
+button:nth-child(5n){
+    background: linear-gradient(145deg,#ff4d4d,#ff9900);
+}
+button:nth-child(3n){
+    background: linear-gradient(145deg,#00ffcc,#00ccff);
+}
+button:nth-child(4n){
+    background: linear-gradient(145deg,#66ff66,#00cc66);
+}
+
+/* Hover Glow */
+button:hover{
+    transform: translateY(-5px) scale(1.05);
+    box-shadow:
+        0 0 15px white,
+        0 0 30px #00ffff,
+        0 10px 20px rgba(0,0,0,0.5);
+}
+
+/* Click Effect */
+button:active{
+    transform: scale(0.95);
+}
+
+/* BIG Super Glowing Equal Button */
+.equal{
+    grid-column: span 2;
+    font-size:28px;
+    background: linear-gradient(145deg,#00ffcc,#00ccff);
+    color:black;
+    box-shadow:
+        0 0 20px #00ffff,
+        0 0 40px #00ffff,
+        0 0 80px #00ccff;
+    animation: superGlow 1.5s infinite alternate;
+}
+
+@keyframes superGlow{
+    from{
+        box-shadow:
+            0 0 20px #00ffff,
+            0 0 40px #00ffff,
+            0 0 80px #00ccff;
+    }
+    to{
+        box-shadow:
+            0 0 30px #00ffff,
+            0 0 60px #00ffff,
+            0 0 120px #00ccff;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<canvas id="galaxy"></canvas>
+
+<div class="calculator">
+    <input type="text" class="display" id="display" disabled>
+
+    <button onclick="clearDisplay()">C</button>
+    <button onclick="deleteLast()">DEL</button>
+    <button onclick="append('*')">×</button>
+    <button onclick="append('-')">-</button>
+
+    <button onclick="append('7')">7</button>
+    <button onclick="append('8')">8</button>
+    <button onclick="append('9')">9</button>
+    <button onclick="append('+')">+</button>
+
+    <button onclick="append('4')">4</button>
+    <button onclick="append('5')">5</button>
+    <button onclick="append('6')">6</button>
+    <button onclick="append('.')">.</button>
+
+    <button onclick="append('1')">1</button>
+    <button onclick="append('2')">2</button>
+    <button onclick="append('3')">3</button>
+
+    <button onclick="append('0')">0</button>
+    <button class="equal" onclick="calculate()">=</button>
+</div>
+
+
+<script>
+function append(value){
+    document.getElementById("display").value += value;
+}
+
+function clearDisplay(){
+    document.getElementById("display").value = "";
+}
+
+function deleteLast(){
+    let current = document.getElementById("display").value;
+    document.getElementById("display").value = current.slice(0,-1);
+}
+
+function calculate(){
+    try{
+        document.getElementById("display").value =
+        eval(document.getElementById("display").value);
+    }
+    catch{
+        document.getElementById("display").value = "Error";
+    }
+}
+
+/* Galaxy Background Animation */
+const canvas = document.getElementById('galaxy');
+const ctx = canvas.getContext('2d');
+let stars = [];
+let w, h;
+
+function resize(){
+    w = canvas.width = window.innerWidth;
+    h = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+for(let i=0;i<200;i++){
+    stars.push({
+        x: Math.random()*w,
+        y: Math.random()*h,
+        r: Math.random()*1.2,
+        d: Math.random()*0.5
+    });
+}
+
+function draw(){
+    ctx.fillStyle = "rgba(0,0,0,0.3)";
+    ctx.fillRect(0,0,w,h);
+    for(let i=0;i<stars.length;i++){
+        let s = stars[i];
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+        ctx.fillStyle = "white";
+        ctx.fill();
+    }
+}
+
+function update(){
+    for(let i=0;i<stars.length;i++){
+        let s = stars[i];
+        s.y += s.d;
+        if(s.y>h){
+            s.y=0;
+            s.x=Math.random()*w;
+        }
+    }
+}
+
+function animate(){
+    draw();
+    update();
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
